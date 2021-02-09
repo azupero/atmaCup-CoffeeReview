@@ -1,8 +1,7 @@
-input/
-feature/
-output/
-work/mlruns/
-work/hydra/
+*.csv
+*.pickle
+work/mlruns/*
+work/hydra/*
 .vscode
 
 # Created by https://www.gitignore.io/api/macos,images,python,jupyternotebooks
