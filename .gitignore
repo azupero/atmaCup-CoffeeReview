@@ -1,7 +1,7 @@
 *.csv
 *.pickle
 work/mlruns/*
-work/hydra/*
+# work/hydra/*
 .vscode
 
 # Created by https://www.gitignore.io/api/macos,images,python,jupyternotebooks
