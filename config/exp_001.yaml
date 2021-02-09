@@ -1,0 +1,61 @@
+globals:
+  config_path: /Users/azupero/data-science/atmaCup/atmaCup-coffee/config
+  input_dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/input
+  output_dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/output
+
+hydra:
+  run:
+    dir: ../work/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  output_subdir: null
+
+mlflow:
+  tracking_uri: /Users/azupero/data-science/atmaCup/atmaCup-coffee/work/mlruns
+  experiment_name: catboost
+  run_name: exp_001
+
+model:
+  catboost:
+    name: CatBoostRegressor
+    params:
+      n_estimators: 10000
+      loss_function: MAE
+      eval_metric: MAE
+      learning_rate: 0.01
+      early_stopping_rounds: 100
+      allow_writing_files: False
+      verbose: 1000
+  # lightgbm:
+  #   params:
+  #     learning_rate: 0.01
+
+training:
+  targets: [
+    'aroma',
+    'flavor',
+    'aftertaste',
+    'acidity',
+    'body',
+    'balance',
+    'uniformity',
+    'clean_cup',
+    'sweetness',
+    'cupper_points',
+    'total_cup_points'
+    ]
+  seeds: [0, 1]
+  figure:
+    name: feature_importance.html
+
+metric:
+  name: Columnwise-MAE
+
+split:
+  name: Group K-Fold
+  params:
+    group_col: farm_name_OE
+    n_splits: 5
+    shuffle: True
+    cv_seed: 1234
+
+feature:
+  dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/feature

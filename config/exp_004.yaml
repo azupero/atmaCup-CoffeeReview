@@ -1,0 +1,194 @@
+globals:
+  config_path: /Users/azupero/data-science/atmaCup/atmaCup-coffee/config
+  input_dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/input
+  output_dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/output
+
+hydra:
+  run:
+    dir: ../work/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  output_subdir: null
+
+mlflow:
+  tracking_uri: /Users/azupero/data-science/atmaCup/atmaCup-coffee/work/mlruns
+  experiment_name: catboost
+  run_name: exp_004
+
+model:
+  catboost:
+    name: CatBoostRegressor
+    params:
+      n_estimators: 10000
+      loss_function: MAE
+      eval_metric: MAE
+      learning_rate: 0.01
+      early_stopping_rounds: 100
+      allow_writing_files: False
+      verbose: 1000
+  # lightgbm:
+  #   params:
+  #     objective: regression
+  #     metric: l1
+  #     boosting_type: gbdt
+  #     learning_rate: 0.01
+  #     max_depth: 5
+  #     num_leaves: 32
+  #     lambda_l1: 0.1
+  #     lambda_l2: 0.1
+  #     bagging_freq: 0
+  #     bagging_fraction: 0.8
+  #     feature_fraction: 0.8
+  #     min_data_in_leaf: 50
+  #     num_threads: 0
+  #     verbosity: -1
+  #     num_iterations: 10000
+  #     early_stopping_round: 100
+
+
+training:
+  targets: [
+    'aroma',
+    'flavor',
+    'aftertaste',
+    'acidity',
+    'body',
+    'balance',
+    'uniformity',
+    'clean_cup',
+    'sweetness',
+    'cupper_points',
+    'total_cup_points'
+    ]
+  seeds: [0, 1]
+  figure:
+    name: feature_importance.html
+
+metric:
+  name: mean_absolute_error
+
+split:
+  name: Group K-Fold
+  params:
+    group_col: farm_name
+    n_splits: 5
+    shuffle: True
+    cv_seed: 1234
+
+feature:
+  dir: /Users/azupero/data-science/atmaCup/atmaCup-coffee/feature
+  processes:
+    to_preprocess: [
+      uniform_bag_weight,
+      uniform_harvest_year,
+      add_grading_date_features,
+      add_expiration_features,
+      add_defects_features,
+      add_cross_num_features,
+    ]
+    to_features: [
+        # "get_ordinal_encoding_features",
+        "get_count_encoding_features",
+        "get_target_encoding_features",
+        # "get_altitude_features",
+        # "get_numberof_bags_feature",
+        # "get_bag_weight_feature",
+        # "get_hervest_year_features",
+        # "get_grading_date_features",
+        # "get_expiration_features",
+        # "get_moisture_features",
+        # "get_defects_features",
+        # "get_quakers_features",
+        # "get_cross_num_features",
+        # "get_agg_region_features",
+        # "get_agg_company_features",
+    ]
+    count_encoding:
+      cols: [
+        "species",
+        "owner",
+        "countryof_origin",
+        "farm_name",
+        "mill",
+        "company",
+        "region",
+        "producer",
+        "in_country_partner",
+        "owner1",
+        "variety",
+        "processing_method",
+        "color",
+        "unit_of_measurement",
+        "category_one_defects",
+        "category_two_defects",
+        "category_sum_defects",
+      ]
+    ordinal_encoding:
+      cols: [
+        "farm_name",
+        "variety",
+        "countryof_origin",
+        "processing_method",
+        "color",
+        "unit_of_measurement",
+        "region",
+        "category_one_and_two_defects_raw",
+      ]
+    onehot_encoding:
+      cols: [
+        "species",
+        "processing_method",
+        "color",
+        "unit_of_measurement",
+        "in_country_partner",
+      ]
+    target_encoding:
+      cols: [
+        "countryof_origin",
+        "region",
+        "processing_method",
+        "variety",
+      ]
+      group_cols: [
+      ]
+      splitter:
+        params:
+          n_splits: 5
+          shuffle: True
+          seed: 42
+    agg_region:
+      cat_cols: [
+        "region",
+      ]
+      target_cols: [
+        "altitude_mean_meters",
+        "numberof_bags",
+        "bag_weight_g",
+        "moisture",
+        "yield",
+        "harvest_year",
+        "processing_method_OE"
+      ]
+      methods: [
+        "min",
+        "max",
+        "mean",
+        "std"
+      ]
+    agg_company:
+      cat_cols: [
+        "company",
+      ]
+      target_cols: [
+        "altitude_mean_meters",
+        "numberof_bags",
+        "bag_weight_g",
+        "moisture",
+        "yield",
+        "harvest_year",
+        "processing_method_OE"
+      ]
+      methods: [
+        "min",
+        "max",
+        "mean",
+        "std"
+      ]
